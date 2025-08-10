@@ -1,6 +1,6 @@
-# 🛡️ FlagWise
 
 <div align="center">
+# 🛡️ FlagWise
 
 **Shadow AI Detection Server - Real-time Security Monitoring for LLM Traffic**
 
@@ -9,12 +9,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-Latest-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql)](https://postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-
-FlagWise is an open-source **Shadow AI detection server** designed to give organizations complete visibility into how Large Language Models (LLMs) are being used across their systems. It monitors LLM traffic in real time, detects unauthorized or risky usage, and provides detailed analytics so you can take action before small issues turn into serious security incidents.
 </div>
 
-## With FlagWise, you can
+FlagWise is an open-source **Shadow AI detection server** designed to give organizations complete visibility into how Large Language Models (LLMs) are being used across their systems. It monitors LLM traffic in real time, detects unauthorized or risky usage, and provides detailed analytics so you can take action before small issues turn into serious security incidents.
+
+With FlagWise, you can:
 
 - **Monitor LLM traffic in real time** – Intercept and log prompts, responses, and metadata without slowing down your applications
 - **Detect shadow AI usage** – Identify unauthorized models, providers, or prompt patterns that violate internal policies

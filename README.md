@@ -76,6 +76,8 @@ docker-compose up -d
 ### Data Source Configuration
 FlagWise consumes LLM traffic data from Kafka topics that are fed from network routers. Configure your Kafka connection in **Settings → Data Sources** within the FlagWise interface.
 
+![SCR-20250810-dtaq](https://github.com/user-attachments/assets/7a09d058-8f10-447d-90fb-af7e29b6f8f7)
+
 [📖 **Detailed Installation Guide →**](INSTALLATION.md)
 
 ## 🛠️ Technology Stack

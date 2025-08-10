@@ -1195,7 +1195,7 @@ async def save_kafka_configuration(
         try:
             import subprocess
             result = subprocess.run(
-                ['docker', 'restart', 'shadow-ai-consumer'],
+                ['docker', 'restart', 'flagwise-consumer'],
                 capture_output=True,
                 text=True,
                 timeout=30

@@ -4,7 +4,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
-    container_name: shadow-ai-zookeeper
+    container_name: flagwise-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -14,7 +14,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     hostname: kafka
-    container_name: shadow-ai-kafka
+    container_name: flagwise-kafka
     depends_on:
       - zookeeper
     ports:
@@ -31,7 +31,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: shadow-ai-postgres
+    container_name: flagwise-postgres
     environment:
       POSTGRES_DB: shadow_ai
       POSTGRES_USER: shadow_user
@@ -46,12 +46,12 @@ services:
     build:
       context: ./services/consumer
       dockerfile: Dockerfile
-    container_name: shadow-ai-consumer
+    container_name: flagwise-consumer
     depends_on:
       - kafka
       - postgres
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: demo-kafka:9092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       POSTGRES_HOST: postgres
       POSTGRES_DB: shadow_ai
       POSTGRES_USER: shadow_user
@@ -64,7 +64,7 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile
-    container_name: shadow-ai-api
+    container_name: flagwise-api
     depends_on:
       - postgres
     ports:
@@ -83,7 +83,7 @@ services:
     build:
       context: ./services/web
       dockerfile: Dockerfile
-    container_name: shadow-ai-web
+    container_name: flagwise-web
     depends_on:
       - api
     ports:
@@ -95,6 +95,20 @@ services:
       - /app/node_modules
     restart: unless-stopped
 
+  data-generator:
+    build:
+      context: ./services/data-generator
+      dockerfile: Dockerfile
+    container_name: flagwise-data-generator
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: llm-traffic-logs
+      GENERATION_INTERVAL: 3
+    restart: unless-stopped
+    profiles:
+      - generator
 
 volumes:
   postgres_data:

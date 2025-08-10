@@ -57,13 +57,13 @@ setup: ## Initial setup - copy env file and build
 	docker-compose build
 
 kafka-topics: ## List Kafka topics
-	docker exec shadow-ai-kafka kafka-topics --bootstrap-server localhost:9092 --list
+	docker exec flagwise-kafka kafka-topics --bootstrap-server localhost:9092 --list
 
 kafka-create-topic: ## Create llm-traffic-logs topic
-	docker exec shadow-ai-kafka kafka-topics --bootstrap-server localhost:9092 --create --topic llm-traffic-logs --partitions 3 --replication-factor 1
+	docker exec flagwise-kafka kafka-topics --bootstrap-server localhost:9092 --create --topic llm-traffic-logs --partitions 3 --replication-factor 1
 
 db-shell: ## Connect to PostgreSQL shell
-	docker exec -it shadow-ai-postgres psql -U shadow_user -d shadow_ai
+	docker exec -it flagwise-postgres psql -U shadow_user -d shadow_ai
 
 # Data Generation Commands
 start-generator: ## Start the test data generator

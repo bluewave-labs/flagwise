@@ -12,6 +12,7 @@
 
 
 FlagWise is an open-source **Shadow AI detection server** designed to give organizations complete visibility into how Large Language Models (LLMs) are being used across their systems. It monitors LLM traffic in real time, detects unauthorized or risky usage, and provides detailed analytics so you can take action before small issues turn into serious security incidents.
+</div>
 
 ## With FlagWise, you can
 

@@ -21,8 +21,7 @@ With FlagWise, you can:
 - **Get real-time alerts** – Respond instantly when risky or unapproved activity occurs
 - **Integrate easily** – Deploy with Docker, run the backend with FastAPI, the frontend with React, and store data securely in PostgreSQL
 
-
-FlagWise is built for teams that care about **AI governance, security, and compliance**. 
+<img width="1046" height="533" alt="SCR-20250810-etjk" src="https://github.com/user-attachments/assets/be79487c-cf9a-4a01-83ce-be14a1f4aa09" />
 
 
 

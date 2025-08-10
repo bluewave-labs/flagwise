@@ -136,11 +136,6 @@ FlagWise consumes LLM traffic data from Kafka topics that are fed from network r
 2. **[🔍 Detection Rules](docs/DETECTION_RULES.md)** - Configure security patterns
 3. **[🚨 Alert Setup](docs/ALERTS.md)** - Set up notifications
 
-### For Security Teams
-1. **[🛡️ Security Guide](docs/SECURITY.md)** - Hardening and best practices
-2. **[🔒 Threat Detection](docs/THREAT_DETECTION.md)** - Understanding detection capabilities
-3. **[🚨 Incident Response](docs/INCIDENT_RESPONSE.md)** - Handling security events
-
 ---
 
 ## 🤝 Contributing

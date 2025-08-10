@@ -17,17 +17,17 @@ services:
   # Zookeeper for Kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: shadow-ai-zookeeper
+    container_name: flagwise-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - shadow-ai-network
+      - flagwise-network
 
   # Kafka Message Broker
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: shadow-ai-kafka
+    container_name: flagwise-kafka
     depends_on:
       - zookeeper
     environment:
@@ -39,12 +39,12 @@ services:
       KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_SSL
       KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
     networks:
-      - shadow-ai-network
+      - flagwise-network
 
   # PostgreSQL Database with security hardening
   postgres:
     image: postgres:15-alpine  # Use Alpine for smaller attack surface
-    container_name: shadow-ai-postgres
+    container_name: flagwise-postgres
     environment:
       POSTGRES_DB: shadow_ai
       POSTGRES_USER_FILE: /run/secrets/postgres_user
@@ -69,7 +69,7 @@ services:
           memory: 1G
           cpus: '0.5'
     networks:
-      - shadow-ai-network
+      - flagwise-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/postgres_user) -d shadow_ai"]
       interval: 30s
@@ -81,7 +81,7 @@ services:
     build:
       context: ./services/consumer
       dockerfile: Dockerfile.secure
-    container_name: shadow-ai-consumer
+    container_name: flagwise-consumer
     depends_on:
       - kafka
       - postgres
@@ -108,7 +108,7 @@ services:
           memory: 512M
           cpus: '0.3'
     networks:
-      - shadow-ai-network
+      - flagwise-network
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
       interval: 30s
@@ -120,7 +120,7 @@ services:
     build:
       context: ./services/api
       dockerfile: Dockerfile.secure
-    container_name: shadow-ai-api
+    container_name: flagwise-api
     depends_on:
       - postgres
     ports:
@@ -152,7 +152,7 @@ services:
           memory: 512M
           cpus: '0.3'
     networks:
-      - shadow-ai-network
+      - flagwise-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -164,7 +164,7 @@ services:
     build:
       context: ./services/web
       dockerfile: Dockerfile.secure
-    container_name: shadow-ai-web
+    container_name: flagwise-web
     depends_on:
       - api
     ports:
@@ -176,12 +176,12 @@ services:
     user: "1000:1000"
     restart: unless-stopped
     networks:
-      - shadow-ai-network
+      - flagwise-network
 
   # Redis for caching and rate limiting
   redis:
     image: redis:7-alpine
-    container_name: shadow-ai-redis
+    container_name: flagwise-redis
     command: redis-server --requirepass "${REDIS_PASSWORD}"
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -190,7 +190,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - shadow-ai-network
+      - flagwise-network
     deploy:
       resources:
         limits:
@@ -204,7 +204,7 @@ volumes:
     driver: local
 
 networks:
-  shadow-ai-network:
+  flagwise-network:
     driver: bridge
     ipam:
       config:

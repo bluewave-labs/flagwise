@@ -9,6 +9,10 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-Latest-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql)](https://postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+<img width="1341" height="859" alt="SCR-20250810-frva" src="https://github.com/user-attachments/assets/9259c19f-4e05-4925-ae8a-45cf7e037549" />
+
+
 </div>
 
 FlagWise is an open-source **Shadow AI detection server** designed to give organizations complete visibility into how Large Language Models (LLMs) are being used across their systems. It monitors LLM traffic in real time, detects unauthorized or risky usage, and provides detailed analytics so you can take action before small issues turn into serious security incidents.

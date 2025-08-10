@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: demo-zookeeper
+    ports:
+      - "2182:2181"
+    networks:
+      - kafka-demo-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka
+    container_name: demo-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9092"
+    networks:
+      - kafka-demo-network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: demo-kafka-init
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # Wait for Kafka to be ready
+      echo 'Waiting for Kafka to be ready...'
+      sleep 30
+      
+      # Create the topic
+      kafka-topics --bootstrap-server kafka:9092 --list
+      
+      echo 'Creating topic: llm-traffic-logs'
+      kafka-topics --bootstrap-server kafka:9092 \
+                   --create \
+                   --if-not-exists \
+                   --topic llm-traffic-logs \
+                   --replication-factor 1 \
+                   --partitions 3 \
+                   --config retention.ms=604800000
+      
+      echo 'Topic created successfully'
+      kafka-topics --bootstrap-server kafka:9092 --list
+      "
+    networks:
+      - kafka-demo-network
+
+  llm-traffic-generator:
+    build:
+      context: ./generator
+      dockerfile: Dockerfile
+    container_name: demo-llm-traffic-generator
+    depends_on:
+      - kafka-init
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=llm-traffic-logs
+      - GENERATION_INTERVAL=2
+    networks:
+      - kafka-demo-network
+    restart: unless-stopped
+
+networks:
+  kafka-demo-network:
+    driver: bridge
+    name: kafka-demo-network
+
+volumes:
+  kafka-data:
+  zookeeper-data:

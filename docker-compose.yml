@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: shadow-ai-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka
+    container_name: shadow-ai-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  postgres:
+    image: postgres:15
+    container_name: shadow-ai-postgres
+    environment:
+      POSTGRES_DB: shadow_ai
+      POSTGRES_USER: shadow_user
+      POSTGRES_PASSWORD: shadow_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  consumer:
+    build:
+      context: ./services/consumer
+      dockerfile: Dockerfile
+    container_name: shadow-ai-consumer
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: demo-kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: shadow_ai
+      POSTGRES_USER: shadow_user
+      POSTGRES_PASSWORD: shadow_pass
+    volumes:
+      - ./services/consumer:/app
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: shadow-ai-api
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: shadow_ai
+      POSTGRES_USER: shadow_user
+      POSTGRES_PASSWORD: shadow_pass
+    volumes:
+      - ./services/api:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+    container_name: shadow-ai-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+    volumes:
+      - ./services/web:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+
+volumes:
+  postgres_data:

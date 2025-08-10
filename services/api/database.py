@@ -910,9 +910,10 @@ class DatabaseService:
                 
                 base_query = """
                 SELECT id, title, description, severity, alert_type, status, source_type, 
-                       source_id, related_request_id, metadata, created_at, updated_at,
-                       acknowledged_at, resolved_at, acknowledged_by, resolved_by
-                FROM alerts
+                       NULL as source_id, request_id as related_request_id, metadata, 
+                       created_at, updated_at, acknowledged_at, resolved_at, 
+                       acknowledged_by, resolved_by
+                FROM security_alerts
                 WHERE 1=1
                 """
                 
@@ -961,7 +962,7 @@ class DatabaseService:
                 retention_days = retention_result[0] if retention_result else 180
                 
                 cleanup_date = datetime.utcnow() - timedelta(days=retention_days)
-                cursor.execute("DELETE FROM alerts WHERE created_at < %s", [cleanup_date])
+                cursor.execute("DELETE FROM security_alerts WHERE created_at < %s", [cleanup_date])
                 conn.commit()
                 
                 # Count total records
@@ -1162,7 +1163,7 @@ class DatabaseService:
                         COUNT(*) FILTER (WHERE status = 'resolved') as resolved_alerts,
                         COUNT(*) FILTER (WHERE severity = 'critical') as critical_alerts,
                         COUNT(*) FILTER (WHERE severity = 'high') as high_alerts
-                    FROM alerts
+                    FROM security_alerts
                     WHERE created_at >= NOW() - INTERVAL '24 hours'
                 """)
                 

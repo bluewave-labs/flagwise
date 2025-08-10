@@ -178,9 +178,10 @@ const Alerts = () => {
   const fetchDetectionRules = async () => {
     try {
       const response = await rulesService.getRules();
-      setDetectionRules(response.data || []);
+      setDetectionRules(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Failed to load detection rules:', err);
+      setDetectionRules([]);
     }
   };
 
@@ -836,7 +837,7 @@ const AlertRulesSheet = ({ showRulesConfig, setShowRulesConfig, detectionRules }
                 <div>
                   <label className="text-xs text-muted-foreground mb-2 block">Monitored Rules</label>
                   <div className="max-h-32 overflow-y-auto space-y-1">
-                    {detectionRules.filter(rule => rule.category === 'security').slice(0, 5).map(rule => (
+                    {(detectionRules || []).filter(rule => rule.category === 'security').slice(0, 5).map(rule => (
                       <div key={rule.id} className="flex items-center space-x-2">
                         <Checkbox defaultChecked className="h-3 w-3" />
                         <span className="text-xs">{rule.name}</span>

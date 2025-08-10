@@ -129,8 +129,7 @@ FlagWise consumes LLM traffic data from Kafka topics that are fed from network r
 
 ### For Developers
 1. **[📖 Installation Guide](INSTALLATION.md)** - Get up and running quickly
-2. **[📚 API Documentation](http://localhost:8000/docs)** - Integrate with your applications
-3. **[🧪 Testing](docs/TESTING.md)** - Run tests and validate functionality
+2. **📚 API Documentation** - Available under /docs in your installation
 
 ### For Administrators
 1. **[👥 User Management](docs/USER_MANAGEMENT.md)** - Manage accounts and permissions
@@ -178,7 +177,6 @@ docker-compose exec web npm test
 - [🔍 Detection Rules](docs/DETECTION_RULES.md) - Security pattern configuration
 
 ### Technical Documentation
-- [📚 API Reference](http://localhost:8000/docs) - Complete API documentation
 - [🗄️ Database Schema](docs/DATABASE.md) - Table structure and relationships
 - [🚀 Deployment Guide](docs/DEPLOYMENT.md) - Production deployment strategies
 
@@ -189,7 +187,6 @@ docker-compose exec web npm test
 ### Community Support
 - 💬 **GitHub Discussions**: Ask questions and share ideas
 - 🐛 **GitHub Issues**: Report bugs and request features
-- 📖 **Documentation**: Comprehensive guides and tutorials
 
 ---
 

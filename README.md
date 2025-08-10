@@ -1,6 +1,6 @@
+<h1 align="center">🛡️ FlagWise</h1>
 
 <div align="center">
-# 🛡️ FlagWise
 
 **Shadow AI Detection Server - Real-time Security Monitoring for LLM Traffic**
 

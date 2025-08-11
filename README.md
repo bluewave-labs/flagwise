@@ -19,14 +19,13 @@ FlagWise is an open-source **Shadow AI detection server** designed to give organ
 
 With FlagWise, you can:
 
-- **Monitor LLM traffic in real time** – Intercept and log prompts, responses, and metadata without slowing down your applications
-- **Detect shadow AI usage** – Identify unauthorized models, providers, or prompt patterns that violate internal policies
-- **Analyze security risks** – See which prompts contain sensitive content, potential data leaks, or compliance violations
-- **Get real-time alerts** – Respond instantly when risky or unapproved activity occurs
-- **Integrate easily** – Deploy with Docker, run the backend with FastAPI, the frontend with React, and store data securely in PostgreSQL
+- **Monitor LLM traffic in real time** – Log prompts, responses, and metadata.
+- **Detect shadow AI usage** – Identify unauthorized models, providers, or prompt patterns that violate policies.
+- **Analyze security risks** – See which prompts contain sensitive content, potential data leaks or compliance violations.
+- **Get real-time alerts** – Respond instantly when risky or unapproved activity occurs.
+- **Integrate easily** – Deploy with Docker, run the backend with FastAPI, the frontend with React and store data securely in PostgreSQL
 
 <img width="1046" height="533" alt="SCR-20250810-etjk" src="https://github.com/user-attachments/assets/be79487c-cf9a-4a01-83ce-be14a1f4aa09" />
-
 
 
 [🚀 Quick Start](#-quick-start) • [📊 Features](#-features) • [📖 Documentation](#-documentation) • [🤝 Contributing](#-contributing)
@@ -42,24 +41,14 @@ With FlagWise, you can:
 - **Risk Scoring**: Intelligent threat assessment (0-100 scale)
 - **Model Restrictions**: Control which AI models can be used
 - **IP Monitoring**: Track and analyze request sources
-
-### 📊 **Comprehensive Analytics**
 - **Interactive Dashboard**: Visual insights into LLM traffic
 - **Trend Analysis**: Volume, threat, and model usage trends
 - **Performance Metrics**: Response times and success rates
-- **Custom Reports**: Export data in multiple formats
-
-### 👥 **User Management**
 - **Role-based Access**: Admin and read-only user types
-- **Secure Authentication**: JWT-based with bcrypt hashing
-- **Admin Controls**: Create, edit, and manage user accounts
-- **Password Management**: Self-service and admin reset capabilities
-
-### 🚨 **Alert System**
-- **Real-time Notifications**: Slack and email integration
 - **Configurable Triggers**: Custom alert conditions
-- **Alert Management**: Track delivery status and failures
 
+Email integration and Slack coming soon
+ 
 ## 🚀 Quick Start
 
 ### One-Command Installation
@@ -71,17 +60,15 @@ docker-compose up -d
 
 ### Access Your Dashboard
 - **Web Interface**: http://localhost:3000
-- **Login**: `admin` / `admin123`
+- **Login**: `admin` / `admin123` (please change this once you login)
 - **API Docs**: http://localhost:8000/docs
 
-**⚠️ Remember to change the default password after first login!**
-
 ### Data Source Configuration
-FlagWise consumes LLM traffic data from Kafka topics that are fed from network routers. Configure your Kafka connection in **Settings → Data Sources** within the FlagWise interface.
+FlagWise consumes LLM traffic data from Kafka topics that are fed from network routers. Configure your Kafka connection in **Settings → Data Sources** within the FlagWise interface. In the future we'll add more data sources.
 
 ![SCR-20250810-dtaq](https://github.com/user-attachments/assets/7a09d058-8f10-447d-90fb-af7e29b6f8f7)
 
-[📖 **Detailed Installation Guide →**](INSTALLATION.md)
+[📖 **Installation Guide →**](INSTALLATION.md)
 
 ## 🛠️ Technology Stack
 
@@ -185,27 +172,11 @@ docker-compose exec web npm test
 
 ---
 
-## 🆘 Support
+## 🆘 Support & License
 
-### Community Support
-- 💬 **GitHub Discussions**: Ask questions and share ideas
-- 🐛 **GitHub Issues**: Report bugs and request features
-
----
-
-## 📄 License
+Please ask your questions or submit an issue in Github issues section.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Contributors**: Thanks to all our amazing contributors
-- **Community**: Special thanks to our active community members
-- **Open Source**: Built with love using amazing open source technologies
-
----
 
 <div align="center">
 

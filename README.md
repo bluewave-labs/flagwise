@@ -28,7 +28,7 @@ With FlagWise, you can:
 <img width="1046" height="533" alt="SCR-20250810-etjk" src="https://github.com/user-attachments/assets/be79487c-cf9a-4a01-83ce-be14a1f4aa09" />
 
 
-[🚀 Quick Start](#-quick-start) • [📊 Features](#-features) • [📖 Documentation](#-documentation) • [🤝 Contributing](#-contributing)
+[Quick Start](#-quick-start) • [Features](#-features) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
 </div>
 
@@ -36,7 +36,7 @@ With FlagWise, you can:
 
 ## ✨ Features
 
-### 🔍 **Real-time Threat Detection**
+### **Real-time Threat Detection**
 - **Pattern-based Detection**: Keywords, regex, and custom rules
 - **Risk Scoring**: Intelligent threat assessment (0-100 scale)
 - **Model Restrictions**: Control which AI models can be used
@@ -123,13 +123,13 @@ Within security operations, it provides real-time threat detection and response 
 ## 🚀 Getting Started
 
 ### For Developers
-1. **[📖 Installation Guide](INSTALLATION.md)** - Get up and running quickly
-2. **📚 API Documentation** - Available under /docs in your installation
+1. **[Installation Guide](INSTALLATION.md)** - Get up and running quickly
+2. **API Documentation** - Available under /docs in your installation
 
 ### For Administrators
-1. **[👥 User Management](docs/USER_MANAGEMENT.md)** - Manage accounts and permissions
-2. **[🔍 Detection Rules](docs/DETECTION_RULES.md)** - Configure security patterns
-3. **[🚨 Alert Setup](docs/ALERTS.md)** - Set up notifications
+1. **[User Management](docs/USER_MANAGEMENT.md)** - Manage accounts and permissions
+2. **[Detection Rules](docs/DETECTION_RULES.md)** - Configure security patterns
+3. **[Alert Setup](docs/ALERTS.md)** - Set up notifications
 
 ---
 
@@ -152,23 +152,23 @@ docker-compose exec web npm test
 ```
 
 ### Contribution Guidelines
-- 🐛 **Bug Reports**: Use GitHub Issues with detailed reproduction steps
-- ✨ **Feature Requests**: Discuss in GitHub Discussions before implementation
-- 🔧 **Pull Requests**: Follow our PR template and ensure tests pass
-- 📖 **Documentation**: Help improve our guides and API docs
+- **Bug Reports**: Use GitHub Issues with detailed reproduction steps
+- **Feature Requests**: Discuss in GitHub Discussions before implementation
+- **Pull Requests**: Follow our PR template and ensure tests pass
+- **Documentation**: Help improve our guides and API docs
 
 ---
 
 ## 📚 Documentation
 
 ### User Guides
-- [📖 Installation Guide](INSTALLATION.md) - Complete setup instructions
-- [👥 User Management](docs/USER_MANAGEMENT.md) - Account and permission management
-- [🔍 Detection Rules](docs/DETECTION_RULES.md) - Security pattern configuration
+- [Installation Guide](INSTALLATION.md) - Complete setup instructions
+- [User Management](docs/USER_MANAGEMENT.md) - Account and permission management
+- [Detection Rules](docs/DETECTION_RULES.md) - Security pattern configuration
 
 ### Technical Documentation
-- [🗄️ Database Schema](docs/DATABASE.md) - Table structure and relationships
-- [🚀 Deployment Guide](docs/DEPLOYMENT.md) - Production deployment strategies
+- [Database Schema](docs/DATABASE.md) - Table structure and relationships
+- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment strategies
 
 ---
 

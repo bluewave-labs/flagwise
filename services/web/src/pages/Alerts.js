@@ -125,9 +125,12 @@ const Alerts = () => {
     }
   };
 
-  const fetchAlerts = async (page = currentPage) => {
+  const fetchAlerts = async (page = currentPage, forceUpdate = false) => {
     try {
-      if (!isRunning) return;
+      // Allow API calls when filters are applied or when forced, even if not running
+      const hasActiveFilters = Object.entries(filters).some(([key, value]) => value !== '' && value !== 'all');
+      
+      if (!isRunning && !hasActiveFilters && !forceUpdate) return;
       
       setLoading(alerts.length === 0);
       setError(null);
@@ -147,21 +150,27 @@ const Alerts = () => {
       
       const newAlerts = alertsResponse.data.items || [];
       
-      setAlerts(prevAlerts => {
-        // Combine new and existing alerts
-        const combinedAlerts = [...newAlerts, ...prevAlerts];
-        
-        // Remove duplicates based on ID
-        const uniqueAlerts = combinedAlerts.filter((alert, index, self) => 
-          index === self.findIndex(t => t.id === alert.id)
-        );
-        
-        // Sort by timestamp (newest first)
-        uniqueAlerts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        
-        // Limit to pageSize items
-        return uniqueAlerts.slice(0, pageSize);
-      });
+      if (hasActiveFilters) {
+        // When filtering, replace all alerts with filtered results
+        setAlerts(newAlerts);
+      } else {
+        // When not filtering, combine new and existing alerts for live feed
+        setAlerts(prevAlerts => {
+          // Combine new and existing alerts
+          const combinedAlerts = [...newAlerts, ...prevAlerts];
+          
+          // Remove duplicates based on ID
+          const uniqueAlerts = combinedAlerts.filter((alert, index, self) => 
+            index === self.findIndex(t => t.id === alert.id)
+          );
+          
+          // Sort by timestamp (newest first)
+          uniqueAlerts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          
+          // Limit to pageSize items
+          return uniqueAlerts.slice(0, pageSize);
+        });
+      }
       
       setAlertStats(statsResponse.data);
       setTotalCount(alertsResponse.data.total_count || 0);
@@ -214,6 +223,13 @@ const Alerts = () => {
   useEffect(() => {
     fetchDetectionRules();
   }, []);
+
+  // Trigger fetchAlerts when filters change
+  useEffect(() => {
+    if (isRunning) {
+      fetchAlerts();
+    }
+  }, [filters]);
 
   const handleAlertAction = async (alertId, action) => {
     try {

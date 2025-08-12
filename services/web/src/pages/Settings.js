@@ -336,27 +336,6 @@ const Settings = () => {
 
         {/* Data Sources Tab */}
         <TabsContent value="data-sources" className="space-y-6">
-          {/* Kafka Connection Status */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Kafka Connection Status</CardTitle>
-                  <CardDescription>Real-time data ingestion status</CardDescription>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Circle 
-                    className={`h-3 w-3 ${
-                      kafkaStatus === 'connected' ? 'text-green-500 fill-green-500' : 
-                      kafkaStatus === 'testing' ? 'text-yellow-500 fill-yellow-500' : 
-                      'text-red-500 fill-red-500'
-                    }`} 
-                  />
-                  <span className="text-sm font-medium capitalize">{kafkaStatus}</span>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
 
           {/* Demo Data Control */}
           <Card>
@@ -444,12 +423,26 @@ const Settings = () => {
           {/* Kafka Configuration */}
           <Card>
             <CardHeader>
-              <CardTitle>
-                Kafka Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure connection to your Kafka broker for real-time LLM traffic ingestion
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>
+                    Kafka Configuration
+                  </CardTitle>
+                  <CardDescription>
+                    Configure connection to your Kafka broker for real-time LLM traffic ingestion
+                  </CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Circle 
+                    className={`h-3 w-3 ${
+                      kafkaStatus === 'connected' ? 'text-green-500 fill-green-500' : 
+                      kafkaStatus === 'testing' ? 'text-yellow-500 fill-yellow-500' : 
+                      'text-red-500 fill-red-500'
+                    }`} 
+                  />
+                  <span className="text-sm font-medium capitalize">{kafkaStatus}</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Enable/Disable Kafka */}
@@ -618,106 +611,35 @@ const Settings = () => {
               {/* Message Schema */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium">Message Schema</label>
-                    <Dialog open={showSchemaDialog} onOpenChange={setShowSchemaDialog}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Schema
-                        </Button>
-                      </DialogTrigger>
-                      
-                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Kafka Message Schema</DialogTitle>
-                          <DialogDescription>
-                            Define the expected JSON structure for Kafka messages. Required fields are highlighted below.
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-sm font-medium">JSON Schema</label>
-                            <textarea
-                              value={kafkaSettings.kafka_message_schema || JSON.stringify({
-                                "timestamp": "string",
-                                "request_id": "string", 
-                                "src_ip": "string",
-                                "provider": "string",
-                                "model": "string",
-                                "prompt": "string",
-                                "response": "string",
-                              }, null, 2)}
-                              onChange={(e) => {
-                                setKafkaSettings({...kafkaSettings, kafka_message_schema: e.target.value});
-                                // TODO: Add real-time validation
-                              }}
-                              className="mt-1 w-full h-96 px-3 py-2 text-sm font-mono bg-background border border-input rounded-md resize-y"
-                              placeholder={JSON.stringify({
-                                "timestamp": "string",
-                                "request_id": "string", 
-                                "src_ip": "string",
-                                "provider": "string",
-                                "model": "string",
-                                "prompt": "string",
-                                "response": "string",
-                              }, null, 2)}
-                              style={{ minHeight: '384px' }}
-                            />
-                            {schemaError && (
-                              <p className="text-sm text-red-500 mt-1">{schemaError}</p>
-                            )}
-                          </div>
-                          
-                          <div className="p-4 bg-muted/20 rounded-lg">
-                            <h4 className="font-medium mb-2">Required Fields</h4>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <span>• <code>timestamp</code> - Request timestamp</span>
-                              <span>• <code>request_id</code> - Unique request ID</span>
-                              <span>• <code>src_ip</code> - Source IP address</span>
-                              <span>• <code>provider</code> - LLM provider (openai, anthropic)</span>
-                              <span>• <code>model</code> - Model name (gpt-4, claude-3)</span>
-                              <span>• <code>prompt</code> - User prompt content</span>
-                              <span>• <code>response</code> - LLM response content</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex justify-end space-x-2">
-                            <Button 
-                              variant="outline" 
-                              onClick={() => setShowSchemaDialog(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button onClick={() => setShowSchemaDialog(false)}>
-                              Save Schema
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  
-                  <div className="p-4 bg-slate-900 border border-slate-700 rounded-lg">
-                    <pre className="text-sm font-mono text-slate-100 overflow-x-auto whitespace-pre-wrap">
-                      <code>
-                        {kafkaSettings.kafka_message_schema || JSON.stringify({
-                          "timestamp": "string",
-                          "request_id": "string", 
-                          "src_ip": "string",
-                          "provider": "string",
-                          "model": "string",
-                          "prompt": "string",
-                          "response": "string",
-                        }, null, 2)}
-                      </code>
-                    </pre>
-                  </div>
-                  
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Click "Edit Schema" to modify the JSON structure
-                  </p>
+                  <label className="text-sm font-medium mb-2 block">Message Schema</label>
+                  <textarea
+                    value={kafkaSettings.kafka_message_schema || JSON.stringify({
+                      "timestamp": "string",
+                      "request_id": "string", 
+                      "src_ip": "string",
+                      "provider": "string",
+                      "model": "string",
+                      "prompt": "string",
+                      "metadata": "object"
+                    }, null, 2)}
+                    onChange={(e) => {
+                      setKafkaSettings({...kafkaSettings, kafka_message_schema: e.target.value});
+                    }}
+                    className="w-full px-3 py-2 text-sm font-mono bg-slate-900 text-slate-100 border border-slate-700 rounded-lg resize-y"
+                    placeholder={JSON.stringify({
+                      "timestamp": "string",
+                      "request_id": "string", 
+                      "src_ip": "string",
+                      "provider": "string",
+                      "model": "string",
+                      "prompt": "string",
+                      "metadata": "object"
+                    }, null, 2)}
+                    style={{ minHeight: '200px' }}
+                  />
+                  {schemaError && (
+                    <p className="text-sm text-red-500 mt-1">{schemaError}</p>
+                  )}
                 </div>
                 
                 <div className="p-4 bg-muted/20 rounded-lg">
@@ -746,10 +668,6 @@ const Settings = () => {
                     <div className="flex items-start space-x-2">
                       <code className="text-xs bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded">prompt</code>
                       <span className="text-muted-foreground">User prompt content</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <code className="text-xs bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded">response</code>
-                      <span className="text-muted-foreground">LLM response content</span>
                     </div>
                   </div>
                 </div>

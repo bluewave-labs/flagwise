@@ -65,11 +65,6 @@ const Analytics = () => {
   const [keyMetrics, setKeyMetrics] = useState({});
   const [anomalies, setAnomalies] = useState([]);
   
-  // Forecasting data and controls
-  const [forecastData, setForecastData] = useState(null);
-  const [showForecast, setShowForecast] = useState(false);
-  const [forecastDays, setForecastDays] = useState(7);
-  const [loadingForecast, setLoadingForecast] = useState(false);
   
   // Available providers and models for filtering
   const [providers, setProviders] = useState([]);
@@ -81,36 +76,6 @@ const Analytics = () => {
     loadAnalyticsData();
   }, [timeRange, dateRange, selectedProvider, selectedModel]);
 
-  const loadForecastData = async () => {
-    try {
-      setLoadingForecast(true);
-      
-      const filters = {
-        timeRange,
-        dateRange,
-        forecastDays,
-        provider: selectedProvider !== 'all' ? selectedProvider : null,
-        model: selectedModel !== 'all' ? selectedModel : null
-      };
-      
-      const response = await analyticsService.getForecast(filters);
-      const data = response.data || response;
-      
-      setForecastData(data);
-      
-      console.log('Forecast data loaded:', data);
-      
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err.response?.data?.detail || "Failed to load forecast data",
-      });
-      console.error('Forecast error:', err);
-    } finally {
-      setLoadingForecast(false);
-    }
-  };
 
   const loadAnalyticsData = async () => {
     try {
@@ -182,37 +147,7 @@ const Analytics = () => {
   };
 
   const formatPercent = (value) => `${value?.toFixed(1) || 0}%`;
-  
-  const formatCurrency = (value) => `$${value?.toFixed(2) || 0}`;
 
-  // Combine historical and forecast data for charts
-  const getCombinedVolumeData = () => {
-    if (!showForecast || !forecastData?.volume_forecast) {
-      return volumeTrends;
-    }
-    
-    return [
-      ...volumeTrends,
-      ...forecastData.volume_forecast.map(point => ({
-        ...point,
-        isForecast: true
-      }))
-    ];
-  };
-
-  const getCombinedThreatData = () => {
-    if (!showForecast || !forecastData?.threat_forecast) {
-      return threatTrends;
-    }
-    
-    return [
-      ...threatTrends,
-      ...forecastData.threat_forecast.map(point => ({
-        ...point,
-        isForecast: true
-      }))
-    ];
-  };
 
   const getTimeRangeLabel = () => {
     switch(dateRange) {
@@ -336,64 +271,6 @@ const Analytics = () => {
             </div>
           </div>
           
-          {/* Forecasting Controls */}
-          <div className="mt-6 pt-4 border-t">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <Switch
-                  checked={showForecast}
-                  onCheckedChange={setShowForecast}
-                />
-                <div>
-                  <label className="text-13 font-medium">Enable Predictive Forecasting</label>
-                  <p className="text-xs text-muted-foreground">
-                    Show AI-powered trend predictions
-                  </p>
-                </div>
-              </div>
-              
-              {showForecast && (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <label className="text-13 font-medium">Forecast Days:</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="30"
-                      value={forecastDays}
-                      onChange={(e) => setForecastDays(parseInt(e.target.value) || 7)}
-                      className="w-20"
-                    />
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={loadForecastData}
-                    disabled={loadingForecast}
-                  >
-                    {loadingForecast ? (
-                      <RefreshCw className="h-4 w-4 animate-spin mr-1" />
-                    ) : (
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                    )}
-                    Generate
-                  </Button>
-                </div>
-              )}
-            </div>
-            
-            {showForecast && forecastData?.confidence_metrics && (
-              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                <span>Confidence: Volume <Badge variant="outline" className="text-xs">
-                  {forecastData.confidence_metrics.volume_accuracy}
-                </Badge></span>
-                <span>Threat <Badge variant="outline" className="text-xs">
-                  {forecastData.confidence_metrics.threat_accuracy}
-                </Badge></span>
-                <span>Data Points: {forecastData.confidence_metrics.data_points}</span>
-                <span>Method: {forecastData.confidence_metrics.forecast_method}</span>
-              </div>
-            )}
-          </div>
 
           <div className="mt-4 text-sm text-muted-foreground">
             Showing data for: <strong>{getTimeRangeLabel()}</strong>
@@ -445,23 +322,6 @@ const Analytics = () => {
           </MetricCardContent>
         </MetricCard>
         
-        <MetricCard variant="purple">
-          <MetricCardContent className="p-6">
-            <div className="flex items-center">
-              <Cpu className="h-5 w-5 text-purple-500" />
-              <div className="ml-3">
-                <p className="text-sm font-medium text-muted-foreground">Total Tokens</p>
-                <div className="flex items-center">
-                  <p className="text-xl font-medium text-gray-700">{formatNumber(keyMetrics.totalTokens)}</p>
-                  <span className="text-sm text-muted-foreground ml-2">
-                    {formatCurrency(keyMetrics.totalCost)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </MetricCardContent>
-        </MetricCard>
-        
         <MetricCard variant="orange">
           <MetricCardContent className="p-6">
             <div className="flex items-center">
@@ -492,25 +352,18 @@ const Analytics = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={getCombinedVolumeData()}>
+              <AreaChart data={volumeTrends}>
                 <defs>
                   <linearGradient id="volumeGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
-                  <linearGradient id="forecastGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis />
+                <XAxis dataKey="time" tick={{fontSize: 13}} />
+                <YAxis tick={{fontSize: 13}} />
                 <Tooltip 
-                  labelFormatter={(label, payload) => {
-                    const point = payload?.[0]?.payload;
-                    return point?.isForecast ? `${label} (Forecast)` : label;
-                  }}
+                  contentStyle={{fontSize: 13}}
                 />
                 <Area
                   type="monotone"
@@ -520,18 +373,6 @@ const Analytics = () => {
                   fill="url(#volumeGradient)"
                   connectNulls={false}
                 />
-                {/* Overlay for forecast data with different styling */}
-                {showForecast && forecastData?.volume_forecast && (
-                  <Area
-                    type="monotone"
-                    dataKey={(entry) => entry.isForecast ? entry.requests : null}
-                    stroke="#8b5cf6"
-                    strokeDasharray="5 5"
-                    fillOpacity={0.1}
-                    fill="url(#forecastGradient)"
-                    connectNulls={false}
-                  />
-                )}
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -547,19 +388,13 @@ const Analytics = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={getCombinedThreatData()}>
+              <LineChart data={threatTrends}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis />
+                <XAxis dataKey="time" tick={{fontSize: 13}} />
+                <YAxis tick={{fontSize: 13}} />
                 <Tooltip 
-                  formatter={(value, name, props) => [
-                    `${value}%`, 
-                    props.payload?.isForecast ? 'Threat Rate (Forecast)' : 'Threat Rate'
-                  ]}
-                  labelFormatter={(label, payload) => {
-                    const point = payload?.[0]?.payload;
-                    return point?.isForecast ? `${label} (Forecast)` : label;
-                  }}
+                  contentStyle={{fontSize: 13}}
+                  formatter={(value) => [`${value}%`, 'Threat Rate']}
                 />
                 {/* Historical data */}
                 <Line 
@@ -570,18 +405,6 @@ const Analytics = () => {
                   dot={{ fill: '#f43f5e', r: 4 }}
                   connectNulls={false}
                 />
-                {/* Forecast data with different styling */}
-                {showForecast && forecastData?.threat_forecast && (
-                  <Line 
-                    type="monotone" 
-                    dataKey={(entry) => entry.isForecast ? entry.threatRate : null}
-                    stroke="#8b5cf6" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={{ fill: '#8b5cf6', r: 3 }}
-                    connectNulls={false}
-                  />
-                )}
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -602,9 +425,9 @@ const Analytics = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={modelUsage}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="model" />
-                <YAxis />
-                <Tooltip />
+                <XAxis dataKey="model" tick={{fontSize: 13}} />
+                <YAxis tick={{fontSize: 13}} />
+                <Tooltip contentStyle={{fontSize: 13}} />
                 <Bar dataKey="requests" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
@@ -621,13 +444,14 @@ const Analytics = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
+              <PieChart style={{'--recharts-text-fontSize': '13px'}}>
                 <Pie
                   data={providerBreakdown}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  labelStyle={{fontSize: '13px'}}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="requests"
@@ -636,7 +460,7 @@ const Analytics = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{fontSize: 13}} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>

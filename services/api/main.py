@@ -1536,21 +1536,6 @@ async def refresh_analytics_aggregates(admin_user: User = Depends(get_admin_user
         logger.error(f"Failed to refresh analytics aggregates: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.get("/analytics/forecast")
-async def get_forecast(
-    time_range: str = "daily",  # hourly, daily, weekly, monthly
-    date_range: str = "7d",     # 24h, 7d, 30d, 90d
-    forecast_days: int = 7,     # number of days to forecast
-    provider: Optional[str] = None,
-    model: Optional[str] = None,
-    current_user: User = Depends(get_current_user)
-):
-    """Get predictive forecast for request volume and threat trends"""
-    try:
-        return db_service.get_forecast(time_range, date_range, forecast_days, provider, model)
-    except Exception as e:
-        logger.error(f"Failed to get forecast: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
 
 # Error handlers
 @app.exception_handler(404)

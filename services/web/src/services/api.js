@@ -170,7 +170,5 @@ export const analyticsService = {
     return response.data;
   },
   
-  refreshAggregates: () => apiClient.post('/analytics/refresh-aggregates'),
-  
-  getForecast: (filters = {}) => apiClient.get('/analytics/forecast', { params: filters })
+  refreshAggregates: () => apiClient.post('/analytics/refresh-aggregates')
 };

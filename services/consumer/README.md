@@ -15,7 +15,6 @@ Kafka consumer service that ingests LLM traffic messages, processes them through
   - `keyword`: Case-insensitive substring matching
   - `regex`: Regular expression patterns
   - `model_restriction`: Blocked model names
-  - `token_limit`: Maximum token thresholds
 
 - **Scoring System:**
   - Each rule adds points (0-100)
@@ -48,7 +47,6 @@ Kafka consumer service that ingests LLM traffic messages, processes them through
 | Credit Card Pattern | regex | `\b(?:\d{4}[-\s]?){3}\d{4}\b` | 60 | Credit card numbers |
 | IP Address Pattern | regex | `\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b` | 20 | IP addresses |
 | Phone Number Pattern | regex | `\b\d{3}[-.]?\d{3}[-.]?\d{4}\b` | 15 | Phone numbers |
-| Token Length Limit | token_limit | 2000 | 25 | Prompts exceeding 2000 tokens |
 | Restricted Models | model_restriction | gpt-4,claude-3-opus | 20 | Disallowed models |
 
 ## Usage

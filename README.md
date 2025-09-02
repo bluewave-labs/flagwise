@@ -47,8 +47,36 @@ With FlagWise, you can:
 - **Role-based Access**: Admin and read-only user types
 - **Configurable Triggers**: Custom alert conditions
 
-Email integration and Slack coming soon
- 
+Email integration and Slack coming soon!
+
+## Screenshots
+
+**Main dashboard**
+
+<img width="1500" height="902" alt="image" src="https://github.com/user-attachments/assets/a88b7d43-21c8-440b-9ada-c59d2650f735" />
+
+**LLM requests overview**
+
+<img width="1502" height="891" alt="image" src="https://github.com/user-attachments/assets/5634ed5d-1e00-453e-937e-80908c1ecb66" />
+
+
+**Flagged prompts** 
+
+<img width="1506" height="895" alt="image" src="https://github.com/user-attachments/assets/24f7d023-1437-4864-b4c0-8c92a9b2635e" />
+
+**Live prompt feed** 
+
+<img width="1501" height="897" alt="image" src="https://github.com/user-attachments/assets/04fb146d-08b5-4aee-9318-bce28e666112" />
+
+**Detection rules** 
+
+<img width="1503" height="897" alt="image" src="https://github.com/user-attachments/assets/84c950a7-5e10-493d-a5da-c99b1ed9d137" />
+
+**Analytics** 
+
+<img width="1505" height="898" alt="image" src="https://github.com/user-attachments/assets/a6677b43-4498-474e-bed2-03ff85706b23" />
+
+
 ## 🚀 Quick Start
 
 ### One-Command Installation

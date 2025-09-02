@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
 // API service functions
 export const authService = {
   login: (username, password) =>
-    apiClient.post('/auth/login', null, { params: { username, password } }),
+    apiClient.post('/auth/login', { username, password }),
   
   getCurrentUser: () => apiClient.get('/auth/me'),
 };

@@ -6,10 +6,16 @@ import { useToast } from '../hooks/use-toast';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { PasswordInput } from '../components/ui/password-input';
+import { ValidationInput } from '../components/ui/validation-input';
+import { ValidationPasswordInput } from '../components/ui/validation-password-input';
+import { useFormValidation, validationRules } from '../hooks/useFormValidation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { DeleteConfirmationDialog } from '../components/ui/confirmation-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Pagination } from '../components/ui/pagination';
+import { SkeletonUserTable } from '../components/ui/skeleton';
 import { 
   Loader2, 
   UserPlus, 
@@ -50,14 +56,31 @@ const UserManagement = () => {
   const [showAdminPasswordDialog, setShowAdminPasswordDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   
-  // Form states
-  const [createForm, setCreateForm] = useState({
-    username: '',
-    password: '',
-    role: 'read_only',
-    first_name: '',
-    last_name: ''
-  });
+  // Loading states for button operations
+  const [createLoading, setCreateLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false);
+  
+  // Form states with validation
+  const createFormValidation = useFormValidation(
+    {
+      username: '',
+      password: '',
+      role: 'read_only',
+      first_name: '',
+      last_name: ''
+    },
+    {
+      username: [validationRules.required, validationRules.minLength(3), validationRules.username],
+      password: [validationRules.required, validationRules.minLength(6)],
+      first_name: [validationRules.maxLength(50)],
+      last_name: [validationRules.maxLength(50)]
+    }
+  );
+  
+  // Keep the old createForm for compatibility
+  const createForm = createFormValidation.values;
   
   const [editForm, setEditForm] = useState({
     role: '',
@@ -120,15 +143,16 @@ const UserManagement = () => {
 
   const handleCreateUser = async () => {
     try {
-      if (!createForm.username || !createForm.password) {
+      if (!createFormValidation.validateAll()) {
         toast({
           variant: "destructive",
           title: "Validation Error",
-          description: "Username and password are required"
+          description: "Please fix the form errors before submitting"
         });
         return;
       }
       
+      setCreateLoading(true);
       await usersService.createUser(createForm);
       toast({
         variant: "success",
@@ -136,7 +160,7 @@ const UserManagement = () => {
         description: "User created successfully"
       });
       setShowCreateDialog(false);
-      setCreateForm({ username: '', password: '', role: 'read_only', first_name: '', last_name: '' });
+      createFormValidation.reset();
       await loadUsers();
     } catch (err) {
       toast({
@@ -144,11 +168,14 @@ const UserManagement = () => {
         title: "Error",
         description: getErrorMessage(err, 'Failed to create user')
       });
+    } finally {
+      setCreateLoading(false);
     }
   };
 
   const handleEditUser = async () => {
     try {
+      setEditLoading(true);
       await usersService.updateUser(selectedUser.id, editForm);
       toast({
         variant: "success",
@@ -164,6 +191,8 @@ const UserManagement = () => {
         title: "Error",
         description: getErrorMessage(err, 'Failed to update user')
       });
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -178,6 +207,7 @@ const UserManagement = () => {
         return;
       }
       
+      setDeleteLoading(true);
       await usersService.deleteUser(selectedUser.id);
       toast({
         variant: "success",
@@ -193,6 +223,8 @@ const UserManagement = () => {
         title: "Error",
         description: getErrorMessage(err, 'Failed to delete user')
       });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -225,6 +257,7 @@ const UserManagement = () => {
         return;
       }
       
+      setPasswordResetLoading(true);
       await usersService.adminResetPassword(selectedUser.id, adminPasswordForm.new_password);
       
       toast({
@@ -241,6 +274,8 @@ const UserManagement = () => {
         title: "Error",
         description: getErrorMessage(err, 'Failed to change password')
       });
+    } finally {
+      setPasswordResetLoading(false);
     }
   };
 
@@ -310,14 +345,7 @@ const UserManagement = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Loading users...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonUserTable />;
   }
 
   return (
@@ -349,43 +377,59 @@ const UserManagement = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">Username</label>
-                  <Input
+                  <ValidationInput
+                    name="username"
                     value={createForm.username}
-                    onChange={(e) => setCreateForm({...createForm, username: e.target.value})}
+                    onChange={(e) => createFormValidation.handleChange('username', e.target.value)}
+                    onBlur={createFormValidation.handleBlur}
                     placeholder="Enter username"
                     className="mt-1"
+                    error={createFormValidation.errors.username}
+                    touched={createFormValidation.touched.username}
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">First Name</label>
-                    <Input
+                    <ValidationInput
+                      name="first_name"
                       value={createForm.first_name}
-                      onChange={(e) => setCreateForm({...createForm, first_name: e.target.value})}
+                      onChange={(e) => createFormValidation.handleChange('first_name', e.target.value)}
+                      onBlur={createFormValidation.handleBlur}
                       placeholder="Enter first name"
                       className="mt-1"
+                      error={createFormValidation.errors.first_name}
+                      touched={createFormValidation.touched.first_name}
                     />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Last Name</label>
-                    <Input
+                    <ValidationInput
+                      name="last_name"
                       value={createForm.last_name}
-                      onChange={(e) => setCreateForm({...createForm, last_name: e.target.value})}
+                      onChange={(e) => createFormValidation.handleChange('last_name', e.target.value)}
+                      onBlur={createFormValidation.handleBlur}
                       placeholder="Enter last name"
                       className="mt-1"
+                      error={createFormValidation.errors.last_name}
+                      touched={createFormValidation.touched.last_name}
                     />
                   </div>
                 </div>
                 
                 <div>
                   <label className="text-sm font-medium">Password</label>
-                  <Input
-                    type="password"
+                  <ValidationPasswordInput
+                    name="password"
                     value={createForm.password}
-                    onChange={(e) => setCreateForm({...createForm, password: e.target.value})}
+                    onChange={(e) => createFormValidation.handleChange('password', e.target.value)}
+                    onBlur={createFormValidation.handleBlur}
                     placeholder="Enter password (min 6 characters)"
                     className="mt-1"
+                    error={createFormValidation.errors.password}
+                    touched={createFormValidation.touched.password}
+                    showStrengthMeter={true}
                   />
                 </div>
                 
@@ -393,7 +437,7 @@ const UserManagement = () => {
                   <label className="text-sm font-medium">Role</label>
                   <Select 
                     value={createForm.role}
-                    onValueChange={(value) => setCreateForm({...createForm, role: value})}
+                    onValueChange={(value) => createFormValidation.handleChange('role', value)}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue />
@@ -410,12 +454,13 @@ const UserManagement = () => {
                     variant="outline" 
                     onClick={() => {
                       setShowCreateDialog(false);
-                      setCreateForm({ username: '', password: '', role: 'read_only', first_name: '', last_name: '' });
+                      createFormValidation.reset();
                     }}
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateUser}>
+                  <Button onClick={handleCreateUser} disabled={createLoading}>
+                    {createLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     Create User
                   </Button>
                 </div>
@@ -654,8 +699,9 @@ const UserManagement = () => {
               </Button>
               <Button 
                 onClick={handleEditUser}
-                disabled={!hasEditFormChanges()}
+                disabled={!hasEditFormChanges() || editLoading}
               >
+                {editLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Update User
               </Button>
             </div>
@@ -664,34 +710,24 @@ const UserManagement = () => {
       </Dialog>
 
       {/* Delete User Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{selectedUser?.username}"? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex justify-end space-x-2">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowDeleteDialog(false);
-                setSelectedUser(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteUser}
-            >
-              Delete User
-            </Button>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete User"
+        description={`Are you sure you want to delete "${selectedUser?.username}"? This action cannot be undone and will remove all associated data.`}
+        confirmText="Delete User"
+        onConfirm={handleDeleteUser}
+        onCancel={() => setSelectedUser(null)}
+        loading={deleteLoading}
+      >
+        {users.length <= 1 && (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm font-medium">
+              ⚠️ Warning: This is the last user account. Deleting it will prevent access to the system.
+            </p>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+      </DeleteConfirmationDialog>
 
       {/* Admin Password Reset Dialog */}
       <Dialog open={showAdminPasswordDialog} onOpenChange={setShowAdminPasswordDialog}>
@@ -706,8 +742,7 @@ const UserManagement = () => {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">New Password</label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={adminPasswordForm.new_password}
                 onChange={(e) => setAdminPasswordForm({...adminPasswordForm, new_password: e.target.value})}
                 placeholder="Enter new password (min 6 characters)"
@@ -717,8 +752,7 @@ const UserManagement = () => {
             
             <div>
               <label className="text-sm font-medium">Confirm New Password</label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={adminPasswordForm.confirm_password}
                 onChange={(e) => setAdminPasswordForm({...adminPasswordForm, confirm_password: e.target.value})}
                 placeholder="Confirm new password"
@@ -737,7 +771,8 @@ const UserManagement = () => {
               >
                 Cancel
               </Button>
-              <Button onClick={handleAdminResetPassword}>
+              <Button onClick={handleAdminResetPassword} disabled={passwordResetLoading}>
+                {passwordResetLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Change Password
               </Button>
             </div>

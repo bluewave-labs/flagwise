@@ -44,6 +44,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
+import { SkeletonDetectionRules } from '../components/ui/skeleton';
 
 const DetectionRules = () => {
   const { isAdmin } = useAuth();
@@ -372,14 +373,7 @@ const DetectionRules = () => {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Loading detection rules...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonDetectionRules />;
   }
 
   return (

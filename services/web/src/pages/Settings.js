@@ -6,10 +6,14 @@ import { PageHeader, PageHeaderTabs } from '../components/ui/page-header';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { PasswordInput } from '../components/ui/password-input';
+import { CopyableInput } from '../components/ui/copyable-input';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { ConfirmationDialog, DataPurgeConfirmationDialog } from '../components/ui/confirmation-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { SkeletonSettings } from '../components/ui/skeleton';
 import { useToast } from '../hooks/use-toast';
 import { 
   Loader2, 
@@ -167,6 +171,13 @@ const Settings = () => {
   const handleManualCleanup = async () => {
     try {
       setLoading(true);
+      
+      // Show progress toast
+      toast({
+        title: "Cleanup Started",
+        description: "Scanning and removing old records...",
+      });
+      
       const response = await settingsService.manualCleanup();
       const stats = response.data.cleanup_stats;
       
@@ -199,6 +210,13 @@ const Settings = () => {
   const handlePurgeAllData = async () => {
     try {
       setLoading(true);
+      
+      // Show progress toast
+      toast({
+        title: "Data Purge Started",
+        description: "This may take a few minutes to complete...",
+      });
+      
       const response = await settingsService.purgeAllData();
       const stats = response.data.purge_stats;
       
@@ -232,11 +250,22 @@ const Settings = () => {
   const handleExport = async () => {
     try {
       if (!exportForm.start_date || !exportForm.end_date) {
-        setError('Please select both start and end dates for export');
+        toast({
+          variant: "destructive",
+          title: "Invalid Date Range",
+          description: "Please select both start and end dates for export"
+        });
         return;
       }
 
       setExportLoading(true);
+      
+      // Show progress toast
+      toast({
+        title: "Export Started",
+        description: `Preparing ${exportForm.data_type} data for download...`,
+      });
+      
       const response = await settingsService.exportData({
         ...exportForm,
         start_date: new Date(exportForm.start_date).toISOString(),
@@ -256,11 +285,18 @@ const Settings = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      setSuccess(`${exportForm.data_type} data exported successfully`);
+      toast({
+        variant: "success",
+        title: "Export Complete",
+        description: `${exportForm.data_type} data has been downloaded successfully`
+      });
       setShowExportDialog(false);
-      setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(`Failed to export data: ${err.response?.data?.detail || err.message}`);
+      toast({
+        variant: "destructive",
+        title: "Export Failed",
+        description: err.response?.data?.detail || err.message
+      });
     } finally {
       setExportLoading(false);
     }
@@ -283,14 +319,7 @@ const Settings = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Loading settings...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonSettings />;
   }
 
   return (
@@ -302,9 +331,9 @@ const Settings = () => {
             Configure system settings and manage data storage
           </p>
         </div>
-        <Button variant="outline" onClick={() => loadData()}>
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Refresh
+        <Button variant="outline" onClick={() => loadData()} disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 mr-2" />}
+          {loading ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
 
@@ -466,7 +495,7 @@ const Settings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Kafka Brokers</label>
-                  <Input
+                  <CopyableInput
                     value={kafkaSettings.kafka_brokers}
                     onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_brokers: e.target.value})}
                     placeholder="broker1:9092,broker2:9092"
@@ -479,7 +508,7 @@ const Settings = () => {
                 
                 <div>
                   <label className="text-sm font-medium">Topic Name</label>
-                  <Input
+                  <CopyableInput
                     value={kafkaSettings.kafka_topic}
                     onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_topic: e.target.value})}
                     placeholder="llm-traffic-logs"
@@ -492,7 +521,7 @@ const Settings = () => {
                 
                 <div>
                   <label className="text-sm font-medium">Consumer Group ID</label>
-                  <Input
+                  <CopyableInput
                     value={kafkaSettings.kafka_group_id}
                     onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_group_id: e.target.value})}
                     placeholder="flagwise-consumer"
@@ -531,7 +560,7 @@ const Settings = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium">Username</label>
-                        <Input
+                        <CopyableInput
                           value={kafkaSettings.kafka_username}
                           onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_username: e.target.value})}
                           placeholder="kafka-username"
@@ -540,8 +569,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <label className="text-sm font-medium">Password</label>
-                        <Input
-                          type="password"
+                        <PasswordInput
                           value={kafkaSettings.kafka_password}
                           onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_password: e.target.value})}
                           placeholder="kafka-password"
@@ -589,7 +617,7 @@ const Settings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Connection Timeout (ms)</label>
-                  <Input
+                  <CopyableInput
                     type="number"
                     value={kafkaSettings.kafka_timeout_ms}
                     onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_timeout_ms: e.target.value})}
@@ -599,7 +627,7 @@ const Settings = () => {
                 
                 <div>
                   <label className="text-sm font-medium">Retry Backoff (ms)</label>
-                  <Input
+                  <CopyableInput
                     type="number"
                     value={kafkaSettings.kafka_retry_backoff_ms}
                     onChange={(e) => setKafkaSettings({...kafkaSettings, kafka_retry_backoff_ms: e.target.value})}
@@ -680,6 +708,13 @@ const Settings = () => {
                   onClick={async () => {
                     try {
                       setTestingConnection(true);
+                      setKafkaStatus('testing');
+                      
+                      // Show testing toast
+                      toast({
+                        title: "Testing Connection",
+                        description: "Connecting to Kafka brokers...",
+                      });
                       
                       const result = await kafkaService.testConnection(kafkaSettings);
                       
@@ -725,13 +760,19 @@ const Settings = () => {
                 </Button>
                 
                 <div className="space-x-2">
-                  <Button variant="outline" onClick={loadData}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Reset
+                  <Button variant="outline" onClick={loadData} disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                    {loading ? 'Resetting...' : 'Reset'}
                   </Button>
                   <Button onClick={async () => {
                     try {
                       setLoading(true);
+                      
+                      // Show saving toast
+                      toast({
+                        title: "Saving Configuration",
+                        description: "Applying Kafka settings...",
+                      });
                       
                       const result = await kafkaService.saveConfiguration(kafkaSettings);
                       toast({
@@ -751,9 +792,9 @@ const Settings = () => {
                     } finally {
                       setLoading(false);
                     }
-                  }}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Configuration
+                  }} disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                    {loading ? 'Saving...' : 'Save Configuration'}
                   </Button>
                 </div>
               </div>
@@ -829,36 +870,18 @@ const Settings = () => {
                           Run Cleanup Now
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Confirm Database Cleanup</DialogTitle>
-                          <DialogDescription>
-                            Are you sure you want to manually trigger database cleanup? This will permanently delete old data based on your retention settings.
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setShowCleanupDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            onClick={handleManualCleanup}
-                            disabled={loading}
-                          >
-                            {loading ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 mr-2" />
-                            )}
-                            Delete Old Data
-                          </Button>
-                        </div>
-                      </DialogContent>
                     </Dialog>
+                    
+                    <ConfirmationDialog
+                      isOpen={showCleanupDialog}
+                      onOpenChange={setShowCleanupDialog}
+                      title="Confirm Database Cleanup"
+                      description="Are you sure you want to manually trigger database cleanup? This will permanently delete old data based on your retention settings."
+                      confirmText="Delete Old Data"
+                      onConfirm={handleManualCleanup}
+                      destructive={true}
+                      loading={loading}
+                    />
                     <p className="text-xs text-muted-foreground mt-1">
                       Immediately delete data older than the retention period
                     </p>
@@ -877,47 +900,35 @@ const Settings = () => {
                           Purge All Data
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>⚠️ Confirm Data Purge</DialogTitle>
-                          <DialogDescription>
-                            <span className="text-red-600 font-semibold">WARNING: This action cannot be undone!</span>
-                            <br /><br />
-                            This will permanently delete ALL collected data from the database including:
-                            <ul className="mt-2 ml-4 list-disc space-y-1">
-                              <li>All LLM requests and responses</li>
-                              <li>All alerts and notifications</li>
-                              <li>All user sessions</li>
-                              <li>All detection rules</li>
-                              <li>All analytics data (hourly, daily, weekly, monthly)</li>
-                            </ul>
-                            <br />
-                            Only user accounts and system settings will be preserved.
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setShowPurgeDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            onClick={handlePurgeAllData}
-                            disabled={loading}
-                          >
-                            {loading ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 mr-2" />
-                            )}
-                            Purge All Data
-                          </Button>
-                        </div>
-                      </DialogContent>
                     </Dialog>
+                    
+                    <DataPurgeConfirmationDialog
+                      isOpen={showPurgeDialog}
+                      onOpenChange={setShowPurgeDialog}
+                      confirmText="Purge All Data"
+                      onConfirm={handlePurgeAllData}
+                      loading={loading}
+                    >
+                      <div className="space-y-3">
+                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-800 text-sm font-medium mb-2">
+                            This will permanently delete ALL collected data:
+                          </p>
+                          <ul className="text-red-700 text-sm space-y-1 ml-4 list-disc">
+                            <li>All LLM requests and responses</li>
+                            <li>All alerts and notifications</li>
+                            <li>All user sessions</li>
+                            <li>All detection rules</li>
+                            <li>All analytics data (hourly, daily, weekly, monthly)</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-green-800 text-sm">
+                            ✅ Preserved: User accounts and system settings
+                          </p>
+                        </div>
+                      </div>
+                    </DataPurgeConfirmationDialog>
                     <p className="text-xs text-muted-foreground mt-1">
                       Permanently delete ALL collected data from the database
                     </p>

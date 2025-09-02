@@ -9,6 +9,9 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { PageHeader } from '../components/ui/page-header';
 import { LoadingState } from '../components/ui/empty-state';
+import { SkeletonDashboard } from '../components/ui/skeleton';
+import { AutoRefreshToggle } from '../components/ui/auto-refresh-toggle';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { Loader2, AlertCircle, Database, AlertTriangle, TrendingUp, Users } from 'lucide-react';
 
 const Dashboard = () => {
@@ -44,6 +47,13 @@ const Dashboard = () => {
   };
 
 
+  // Auto-refresh setup
+  const autoRefresh = useAutoRefresh({
+    fetchFunction: fetchDashboardData,
+    defaultInterval: 30000, // 30 seconds
+    defaultEnabled: false
+  });
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -57,20 +67,7 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-13 text-gray-600">
-            Overview of LLM traffic monitoring and detection activity
-          </p>
-        </div>
-        <LoadingState 
-          title="Loading dashboard..."
-          description="Gathering analytics and recent activity data"
-        />
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   if (error) {
@@ -84,11 +81,23 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-13 text-gray-600">
-          Overview of LLM traffic monitoring and detection activity
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-13 text-gray-600">
+            Overview of LLM traffic monitoring and detection activity
+          </p>
+        </div>
+        
+        <AutoRefreshToggle
+          isEnabled={autoRefresh.isEnabled}
+          interval={autoRefresh.interval}
+          onToggle={autoRefresh.toggleAutoRefresh}
+          onIntervalChange={autoRefresh.updateInterval}
+          onManualRefresh={autoRefresh.manualRefresh}
+          lastRefresh={autoRefresh.lastRefresh}
+          compact={true}
+        />
       </div>
 
       {/* Stats Cards */}

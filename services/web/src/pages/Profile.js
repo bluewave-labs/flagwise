@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { PasswordInput } from '../components/ui/password-input';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { 
@@ -17,6 +18,7 @@ import {
   CheckCircle,
   AlertCircle,
   Edit,
+  Loader2,
 } from 'lucide-react';
 
 const Profile = () => {
@@ -31,11 +33,21 @@ const Profile = () => {
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [editForm, setEditForm] = useState({ username: '' });
   const [nameForm, setNameForm] = useState({ first_name: '', last_name: '' });
-  const [passwordForm, setPasswordForm] = useState({
-    current_password: '',
-    new_password: '',
-    confirm_password: ''
-  });
+  // Password form with validation
+  const passwordFormValidation = useFormValidation(
+    {
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
+    },
+    {
+      current_password: [validationRules.required],
+      new_password: [validationRules.required, validationRules.minLength(6)],
+      confirm_password: [validationRules.required, validationRules.passwordMatch('new_password')]
+    }
+  );
+  
+  const passwordForm = passwordFormValidation.values;
 
   // Initialize form with current user data
   useEffect(() => {
@@ -268,8 +280,8 @@ const Profile = () => {
                           Cancel
                         </Button>
                         <Button onClick={handleUpdateName} disabled={loading}>
-                          {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> : <Save className="h-4 w-4 mr-2" />}
-                          Update
+                          {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                          {loading ? 'Updating...' : 'Update'}
                         </Button>
                       </div>
                     </div>
@@ -323,8 +335,8 @@ const Profile = () => {
                             Cancel
                           </Button>
                           <Button onClick={handleUpdateUsername} disabled={loading}>
-                            {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> : <Save className="h-4 w-4 mr-2" />}
-                            Update
+                            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                            {loading ? 'Updating...' : 'Update'}
                           </Button>
                         </div>
                       </div>
@@ -363,8 +375,7 @@ const Profile = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Current Password</label>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       value={passwordForm.current_password}
                       onChange={(e) => setPasswordForm({...passwordForm, current_password: e.target.value})}
                       placeholder="Enter current password"
@@ -374,8 +385,7 @@ const Profile = () => {
                   
                   <div>
                     <label className="text-sm font-medium">New Password</label>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       value={passwordForm.new_password}
                       onChange={(e) => setPasswordForm({...passwordForm, new_password: e.target.value})}
                       placeholder="Enter new password (min 6 characters)"
@@ -385,8 +395,7 @@ const Profile = () => {
                   
                   <div>
                     <label className="text-sm font-medium">Confirm New Password</label>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       value={passwordForm.confirm_password}
                       onChange={(e) => setPasswordForm({...passwordForm, confirm_password: e.target.value})}
                       placeholder="Confirm new password"
@@ -406,8 +415,8 @@ const Profile = () => {
                       Cancel
                     </Button>
                     <Button onClick={handleChangePassword} disabled={loading}>
-                      {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> : <Key className="h-4 w-4 mr-2" />}
-                      Change Password
+                      {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
+                      {loading ? 'Changing Password...' : 'Change Password'}
                     </Button>
                   </div>
                 </div>

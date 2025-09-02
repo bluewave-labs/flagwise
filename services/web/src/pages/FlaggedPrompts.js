@@ -8,6 +8,7 @@ import { MetricCard, MetricCardContent, MetricCardHeader, MetricCardTitle } from
 import { PageHeader } from '../components/ui/page-header';
 import { Pagination } from '../components/ui/pagination';
 import { EmptySearchResults, LoadingState } from '../components/ui/empty-state';
+import { SkeletonUserTable } from '../components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
 import { Alert, AlertDescription } from '../components/ui/alert';
@@ -218,20 +219,7 @@ const FlaggedPrompts = () => {
   };
 
   if (loading && flaggedRequests.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Flagged Prompts</h1>
-          <p className="text-13 text-gray-600">
-            Security threats and policy violations detected by the system
-          </p>
-        </div>
-        <LoadingState 
-          title="Loading flagged requests..."
-          description="Analyzing security threats and policy violations"
-        />
-      </div>
-    );
+    return <SkeletonUserTable />;
   }
 
   if (error) {

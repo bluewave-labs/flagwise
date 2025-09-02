@@ -37,7 +37,7 @@ services:
       POSTGRES_USER: shadow_user
       POSTGRES_PASSWORD: shadow_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -68,7 +68,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8000:8000"
+      - "8004:8000"
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_DB: shadow_ai
@@ -87,9 +87,9 @@ services:
     depends_on:
       - api
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
-      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_API_URL: http://localhost:8004
     volumes:
       - ./services/web:/app
       - /app/node_modules

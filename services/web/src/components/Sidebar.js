@@ -43,7 +43,7 @@ const sidebarSections = [
   }
 ];
 
-const SidebarItem = ({ item, isActive }) => {
+const SidebarItem = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
   
   return (
@@ -51,12 +51,13 @@ const SidebarItem = ({ item, isActive }) => {
       to={item.href}
       className={({ isActive }) =>
         cn(
-          "flex items-center px-3 py-1.5 rounded-lg sidebar-link-text transition-all duration-200 group",
+          "flex items-center px-3 py-1.5 rounded-lg sidebar-link-text transition-all duration-200 group touch-manipulation min-h-[44px]",
           isActive
             ? "bg-teal-50 text-teal-700"
             : "text-main hover:text-gray-900 hover:bg-gray-100"
         )
       }
+      onClick={onClick}
     >
       <Icon className={cn(
         "h-4 w-4 mr-3 transition-colors",
@@ -67,15 +68,33 @@ const SidebarItem = ({ item, isActive }) => {
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen = true, onClose, isMobile = false }) => {
   const { isAdmin } = useAuth();
   const location = useLocation();
 
+  // Close sidebar when clicking on a link on mobile
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="w-64 bg-white h-full border-r border-gray-200">
+    <div 
+      className={`
+        ${isMobile ? 'fixed' : 'relative'} 
+        ${isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : ''}
+        w-64 bg-white h-full border-r border-gray-200 z-50 transition-transform duration-300 ease-in-out
+        ${isMobile ? 'md:relative md:translate-x-0' : ''}
+      `}
+    >
       {/* Logo */}
       <div className="flex items-center px-6 py-5">
-        <NavLink to="/dashboard" className="flex items-center hover:opacity-80 transition-opacity">
+        <NavLink 
+          to="/dashboard" 
+          className="flex items-center hover:opacity-80 transition-opacity"
+          onClick={handleLinkClick}
+        >
           <div className="w-8 h-8 bg-teal-600 rounded-md flex items-center justify-center mr-3">
             <Target className="h-5 w-5 text-white" />
           </div>
@@ -98,6 +117,7 @@ const Sidebar = () => {
                     key={item.name}
                     item={item}
                     isActive={location.pathname === item.href}
+                    onClick={handleLinkClick}
                   />
                 ))}
             </div>

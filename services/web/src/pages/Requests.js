@@ -9,9 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { PageHeader } from '../components/ui/page-header';
 import { Pagination } from '../components/ui/pagination';
 import { LoadingState } from '../components/ui/empty-state';
+import { SkeletonTable } from '../components/ui/skeleton';
 import { Badge } from '../components/ui/badge';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { AutoRefreshToggle } from '../components/ui/auto-refresh-toggle';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { Loader2, Search, Filter, AlertCircle, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../components/ui/sheet';
@@ -92,6 +95,14 @@ const Requests = () => {
     }
   };
 
+  // Auto-refresh setup
+  const autoRefresh = useAutoRefresh({
+    fetchFunction: () => fetchRequests(currentPage),
+    defaultInterval: 15000, // 15 seconds - faster for live request monitoring
+    defaultEnabled: false,
+    dependencies: [filters, pageSize, currentPage]
+  });
+
   useEffect(() => {
     fetchRequests(1);
   }, [filters, pageSize]);
@@ -135,11 +146,23 @@ const Requests = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">LLM Requests</h1>
-        <p className="text-13 text-gray-600">
-          Monitor and analyze all intercepted LLM API requests
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">LLM Requests</h1>
+          <p className="text-13 text-gray-600">
+            Monitor and analyze all intercepted LLM API requests
+          </p>
+        </div>
+        
+        <AutoRefreshToggle
+          isEnabled={autoRefresh.isEnabled}
+          interval={autoRefresh.interval}
+          onToggle={autoRefresh.toggleAutoRefresh}
+          onIntervalChange={autoRefresh.updateInterval}
+          onManualRefresh={autoRefresh.manualRefresh}
+          lastRefresh={autoRefresh.lastRefresh}
+          compact={true}
+        />
       </div>
 
       {/* Filters */}
@@ -241,10 +264,7 @@ const Requests = () => {
           )}
 
           {loading ? (
-            <LoadingState 
-              title="Loading requests..."
-              description="Fetching LLM API request data"
-            />
+            <SkeletonTable rows={10} columns={8} />
           ) : (
             <>
               <div className="rounded-md border">

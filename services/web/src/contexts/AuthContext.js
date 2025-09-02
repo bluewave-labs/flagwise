@@ -49,8 +49,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await apiClient.post('/auth/login', null, {
-        params: { username, password }
+      const response = await apiClient.post('/auth/login', {
+        username,
+        password
       });
 
       const { access_token, role } = response.data;
@@ -69,11 +70,21 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      console.error('Login failed, trying demo mode:', error);
+      console.error('Login failed:', error);
+      
+      // Handle validation errors properly
+      let errorMessage = 'Login failed';
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail.map(err => err.msg).join(', ');
+        } else {
+          errorMessage = error.response.data.detail;
+        }
+      }
       
       return { 
         success: false, 
-        error: error.response?.data?.detail || 'Login failed' 
+        error: errorMessage
       };
     }
   };

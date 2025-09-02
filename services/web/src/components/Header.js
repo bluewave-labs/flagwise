@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Menu } from 'lucide-react';
 
-const Header = () => {
+const Header = ({ onMenuClick, showMenuButton = false }) => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -39,9 +39,20 @@ const Header = () => {
 
 
   return (
-    <header className="bg-background px-6 w-full h-full">
+    <header className="bg-background px-3 md:px-6 w-full h-full">
       <div className="flex items-center justify-between h-full">
-        <div className="flex-1">
+        <div className="flex items-center flex-1">
+          {/* Mobile hamburger menu */}
+          {showMenuButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onMenuClick}
+              className="mr-2 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           {/* Page title will be added here if needed */}
         </div>
 

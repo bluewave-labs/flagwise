@@ -8,6 +8,7 @@ import { Badge } from '../components/ui/badge';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Switch } from '../components/ui/switch';
 import { Input } from '../components/ui/input';
+import { SkeletonAnalytics } from '../components/ui/skeleton';
 import { 
   Select,
   SelectContent,
@@ -160,14 +161,7 @@ const Analytics = () => {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-2">
-          <RefreshCw className="h-5 w-5 animate-spin" />
-          <span>Loading analytics...</span>
-        </div>
-      </div>
-    );
+    return <SkeletonAnalytics />;
   }
 
   return (

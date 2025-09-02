@@ -257,7 +257,6 @@ $$ LANGUAGE plpgsql;
 -- Triggers to automatically update updated_at
 CREATE TRIGGER update_llm_requests_updated_at BEFORE UPDATE ON llm_requests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_detection_rules_updated_at BEFORE UPDATE ON detection_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- System settings table for configuration
 CREATE TABLE IF NOT EXISTS system_settings (
@@ -269,6 +268,9 @@ CREATE TABLE IF NOT EXISTS system_settings (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Create trigger for system_settings after table creation
+CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert default settings
 INSERT INTO system_settings (key, value, description, category) VALUES

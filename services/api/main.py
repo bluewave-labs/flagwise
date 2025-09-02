@@ -9,7 +9,7 @@ import logging
 
 from config import settings
 from models import (
-    Token, User, UserRole, LLMRequestResponse, LLMRequestDetail, 
+    LoginRequest, Token, User, UserRole, LLMRequestResponse, LLMRequestDetail, 
     DetectionRuleResponse, DetectionRuleCreate, DetectionRuleUpdate,
     PaginatedResponse, RequestFilters, StatsResponse, HealthResponse,
     SessionResponse, SessionDetail, SessionFilters, BulkRuleOperation, RuleTemplate,
@@ -40,8 +40,8 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -70,9 +70,9 @@ async def health_check():
 
 # Authentication
 @app.post("/auth/login", response_model=Token)
-async def login(username: str, password: str):
+async def login(login_data: LoginRequest):
     """Authenticate user and return JWT token"""
-    user = authenticate_user(username, password)
+    user = authenticate_user(login_data.username, login_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
